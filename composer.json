@@ -1,0 +1,28 @@
+{
+    "name": "bluetel-solutions/twig-truncate-extension",
+    "description": "Twig Extension to truncate nested HTML, safely!",
+    "keywords": ["twig extension", "truncate", "twig"],
+    "type": "library",
+    "require": {
+        "php":                           ">=5.3.0",
+        "antoligy/dom-string-iterators": "v1.0.0",
+        "twig/twig":                     ">=v1.0.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alex Wilson",
+            "email": "a@ax.gy"
+        },
+        {
+            "name": "Bluetel Solutions",
+            "email": "developers@bluetel.co.uk"
+        }
+    ],
+    "autoload": {
+        "psr-4": { "Bluetel\\Twig\\": "src/" }
+    },
+    "autoload-dev": {
+        "psr-4": { "Bluetel\\Twig\\Tests\\": "tests/" }
+    }
+}
