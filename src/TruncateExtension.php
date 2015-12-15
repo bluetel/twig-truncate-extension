@@ -55,10 +55,7 @@ class TruncateExtension extends Twig_Extension
             return $html;
         }
 
-        // Internal errors enabled as HTML5 not fully supported.
-        $dom = new DOMDocument();
-        libxml_use_internal_errors(true);
-        $dom->loadHTML($html);
+        $dom = $this->htmlToDomDocument($html);
 
         // Grab the body of our DOM.
         $body = $dom->getElementsByTagName("body")->item(0);
@@ -109,10 +106,7 @@ class TruncateExtension extends Twig_Extension
             return $html;
         }
 
-        // Internal errors enabled as HTML5 not fully supported.
-        $dom = new DOMDocument();
-        libxml_use_internal_errors(true);
-        $dom->loadHTML($html);
+        $dom = $this->htmlToDomDocument($html);
 
         // Grab the body of our DOM.
         $body = $dom->getElementsByTagName("body")->item(0);
@@ -137,6 +131,27 @@ class TruncateExtension extends Twig_Extension
         }
 
         return $dom->saveHTML();
+    }
+
+    /**
+     * Builds a DOMDocument object from a string containing HTML.
+     * @param string HTML to load
+     * @returns DOMDocument Returns a DOMDocument object.
+     */
+    public function htmlToDomDocument($html)
+    {
+        // Transform multibyte entities which otherwise display incorrectly.
+        $html = mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8');
+
+        // Internal errors enabled as HTML5 not fully supported.
+        libxml_use_internal_errors(true);
+
+        // Instantiate new DOMDocument object, and then load in UTF-8 HTML.
+        $dom = new DOMDocument();
+        $dom->encoding = 'UTF-8';
+        $dom->loadHTML($html);
+
+        return $dom;
     }
 
     /**

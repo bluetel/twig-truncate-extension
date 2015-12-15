@@ -56,4 +56,17 @@ class TruncateExtensionTest extends \PHPUnit_Framework_TestCase
         $this->assertContains("<b>hello</b>", $data);
     }
 
+    /**
+     * Ensures we preserve tricky HTML entities.
+     * @covers Bluetel\Twig\TruncateExtension:htmlToDomDocument
+     */
+    public function testHtmlEntityConversion()
+    {
+        $html = $this
+            ->extension
+            ->htmlToDomDocument("<DOCTYPE html><html><head></head><body>Foo’s bar</body></html>")
+            ->saveHtml()
+        ;
+        $this->assertContains("Foo&rsquo;s bar", $html);
+    }
 }
