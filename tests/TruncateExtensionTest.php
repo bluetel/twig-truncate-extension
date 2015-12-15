@@ -58,7 +58,7 @@ class TruncateExtensionTest extends \PHPUnit_Framework_TestCase
 
     /**
      * Ensures we preserve tricky HTML entities.
-     * @covers Bluetel\Twig\TruncateExtension:htmlToDomDocument
+     * @covers Bluetel\Twig\TruncateExtension::htmlToDomDocument
      */
     public function testHtmlEntityConversion()
     {
