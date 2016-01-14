@@ -2,6 +2,7 @@
 
 namespace Bluetel\Twig;
 
+use DOMText;
 use DOMDocument;
 use DOMWordsIterator;
 use DOMLettersIterator;
