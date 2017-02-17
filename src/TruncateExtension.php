@@ -131,7 +131,14 @@ class TruncateExtension extends Twig_Extension
             }
         }
 
-        return $dom->saveHTML();
+        $renderHtml = "";
+
+        foreach ($body->firstChild->childNodes as $child) {
+            $renderHtml .= $dom->saveHTML($child);
+        }
+
+
+        return $renderHtml;
     }
 
     /**
