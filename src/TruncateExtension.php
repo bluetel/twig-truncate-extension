@@ -132,11 +132,12 @@ class TruncateExtension extends Twig_Extension
         }
 
         $renderHtml = "";
+        
+        $childNodes = ($body->childNodes->length > 1) ? $body->childNodes : $body->firstChild->childNodes;
 
-        foreach ($body->firstChild->childNodes as $child) {
+        foreach ($childNodes as $child) {
             $renderHtml .= $dom->saveHTML($child);
         }
-
 
         return $renderHtml;
     }
