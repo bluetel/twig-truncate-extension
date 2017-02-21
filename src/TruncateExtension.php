@@ -103,7 +103,7 @@ class TruncateExtension extends Twig_Extension
      */
     public function truncateLetters($html, $limit = 0, $ellipsis = "")
     {
-        if ($limit <= 0) {
+        if ($limit <= 0 || strlen($html) === 0) {
             return $html;
         }
 
