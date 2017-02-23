@@ -103,7 +103,7 @@ class TruncateExtension extends Twig_Extension
      */
     public function truncateLetters($html, $limit = 0, $ellipsis = "")
     {
-        if ($limit <= 0) {
+        if ($limit <= 0 || strlen($html) === 0) {
             return $html;
         }
 
@@ -131,7 +131,15 @@ class TruncateExtension extends Twig_Extension
             }
         }
 
-        return $dom->saveHTML();
+        $renderHtml = "";
+        
+        $childNodes = ($body->childNodes->length > 1) ? $body->childNodes : $body->firstChild->childNodes;
+
+        foreach ($childNodes as $child) {
+            $renderHtml .= $dom->saveHTML($child);
+        }
+
+        return $renderHtml;
     }
 
     /**
