@@ -58,11 +58,8 @@ class TruncateExtension extends Twig_Extension
 
         $dom = $this->htmlToDomDocument($html);
 
-        // Grab the body of our DOM.
-        $body = $dom->getElementsByTagName("body")->item(0);
-
         // Iterate over words.
-        $words = new DOMWordsIterator($body);
+        $words = new DOMWordsIterator($dom);
         foreach ($words as $word) {
 
             // If we have exceeded the limit, we delete the remainder of the content.
@@ -80,7 +77,7 @@ class TruncateExtension extends Twig_Extension
                     $words[$offset][1] + strlen($words[$offset][0])
                 );
 
-                self::removeProceedingNodes($curNode, $body);
+                self::removeProceedingNodes($curNode, $dom);
 
                 if (!empty($ellipsis)) {
                     self::insertEllipsis($curNode, $ellipsis);
@@ -88,7 +85,6 @@ class TruncateExtension extends Twig_Extension
 
                 break;
             }
-
         }
 
         return $dom->saveHTML();
@@ -109,11 +105,8 @@ class TruncateExtension extends Twig_Extension
 
         $dom = $this->htmlToDomDocument($html);
 
-        // Grab the body of our DOM.
-        $body = $dom->getElementsByTagName("body")->item(0);
-
         // Iterate over letters.
-        $letters = new DOMLettersIterator($body);
+        $letters = new DOMLettersIterator($dom);
         foreach ($letters as $letter) {
 
             // If we have exceeded the limit, we want to delete the remainder of this document.
@@ -121,7 +114,7 @@ class TruncateExtension extends Twig_Extension
 
                 $currentText = $letters->currentTextPosition();
                 $currentText[0]->nodeValue = substr($currentText[0]->nodeValue, 0, $currentText[1] + 1);
-                self::removeProceedingNodes($currentText[0], $body);
+                self::removeProceedingNodes($currentText[0], $dom);
 
                 if (!empty($ellipsis)) {
                     self::insertEllipsis($currentText[0], $ellipsis);
@@ -150,7 +143,7 @@ class TruncateExtension extends Twig_Extension
         // Instantiate new DOMDocument object, and then load in UTF-8 HTML.
         $dom = new DOMDocument();
         $dom->encoding = 'UTF-8';
-        $dom->loadHTML($html);
+        $dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 
         return $dom;
     }
