@@ -2,11 +2,12 @@
 
 namespace Bluetel\Twig\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Twig_Environment;
 use Twig_Loader_String;
 //use Bluetel\Twig\TruncateExtension;
 
-class TruncateExtensionTest extends \PHPUnit_Framework_TestCase
+class TruncateExtensionTest extends TestCase
 {
     /**
      * @var TruncateExtension
