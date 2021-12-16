@@ -120,7 +120,7 @@ class TruncateExtension extends Twig_Extension
             if ($letters->key() >= $limit) {
 
                 $currentText = $letters->currentTextPosition();
-                $currentText[0]->nodeValue = substr($currentText[0]->nodeValue, 0, $currentText[1] + 1);
+                $currentText[0]->nodeValue = mb_substr($currentText[0]->nodeValue, 0, $currentText[1] + 1);
                 self::removeProceedingNodes($currentText[0], $body);
 
                 if (!empty($ellipsis)) {
