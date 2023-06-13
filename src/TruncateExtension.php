@@ -2,45 +2,47 @@
 
 namespace Bluetel\Twig;
 
+use DOMElement;
+use DOMNode;
 use DOMText;
 use DOMDocument;
 use DOMWordsIterator;
 use DOMLettersIterator;
-use Twig_Extension;
-use Twig_SimpleFilter;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
 
 /**
  * TruncateExtension
  * @author Alex Wilson <ajw@bluetel.co.uk>
  * @license MIT
  */
-class TruncateExtension extends Twig_Extension
+class TruncateExtension extends AbstractExtension
 {
     /**
-     * @return array Returns the list of filters supplied by this extension.
+     * @return array<string, TwigFilter> Returns the list of filters supplied by this extension.
      */
-    public function getFilters()
+    public function getFilters(): array
     {
-        $truncateWords = new Twig_SimpleFilter(
+        $truncateWords = new TwigFilter(
             'truncate_words',
-            array($this, 'truncateWords'),
-            array(
-                'is_safe' => array('html'),
-            )
+            [$this, 'truncateWords'],
+            [
+                'is_safe' => ['html'],
+            ]
         );
 
-        $truncateLetters = new Twig_SimpleFilter(
+        $truncateLetters = new TwigFilter(
             'truncate_letters',
-            array($this, 'truncateLetters'),
-            array(
-                'is_safe' => array('html'),
-            )
+            [$this, 'truncateLetters'],
+            [
+                'is_safe' => ['html'],
+            ]
         );
 
-        return array(
+        return [
             'truncate_letters' => $truncateWords,
             'truncate_words'   => $truncateLetters,
-        );
+        ];
     }
 
     /**
@@ -50,7 +52,7 @@ class TruncateExtension extends Twig_Extension
      * @param  string  $ellipsis String to use as ellipsis (if any).
      * @return string            Safe truncated HTML.
      */
-    public function truncateWords($html, $limit = 0, $ellipsis = "")
+    public function truncateWords(string $html, int $limit = 0, string $ellipsis = ''): string
     {
         if ($limit <= 0) {
             return $html;
@@ -59,7 +61,7 @@ class TruncateExtension extends Twig_Extension
         $dom = $this->htmlToDomDocument($html);
 
         // Grab the body of our DOM.
-        $body = $dom->getElementsByTagName("body")->item(0);
+        $body = $dom->getElementsByTagName('body')->item(0);
 
         // Iterate over words.
         $words = new DOMWordsIterator($body);
@@ -77,7 +79,7 @@ class TruncateExtension extends Twig_Extension
                 $curNode->nodeValue = substr(
                     $curNode->nodeValue,
                     0,
-                    $words[$offset][1] + strlen($words[$offset][0])
+                    $words[$offset][1] + \strlen($words[$offset][0])
                 );
 
                 self::removeProceedingNodes($curNode, $body);
@@ -91,7 +93,7 @@ class TruncateExtension extends Twig_Extension
 
         }
 
-        return $dom->saveHTML();
+        return (\is_string($dom->saveHTML())) ? $dom->saveHTML() : '';
     }
 
     /**
@@ -101,7 +103,7 @@ class TruncateExtension extends Twig_Extension
      * @param  string  $ellipsis String to use as ellipsis (if any).
      * @return string            Safe truncated HTML.
      */
-    public function truncateLetters($html, $limit = 0, $ellipsis = "")
+    public function truncateLetters(string $html, int $limit = 0, string $ellipsis = ''): string
     {
         if ($limit <= 0) {
             return $html;
@@ -110,7 +112,7 @@ class TruncateExtension extends Twig_Extension
         $dom = $this->htmlToDomDocument($html);
 
         // Grab the body of our DOM.
-        $body = $dom->getElementsByTagName("body")->item(0);
+        $body = $dom->getElementsByTagName('body')->item(0);
 
         // Iterate over letters.
         $letters = new DOMLettersIterator($body);
@@ -131,15 +133,15 @@ class TruncateExtension extends Twig_Extension
             }
         }
 
-        return $dom->saveHTML();
+        return (\is_string($dom->saveHTML())) ? $dom->saveHTML() : '';
     }
 
     /**
      * Builds a DOMDocument object from a string containing HTML.
-     * @param string HTML to load
+     * @param string $html HTML to load
      * @returns DOMDocument Returns a DOMDocument object.
      */
-    public function htmlToDomDocument($html)
+    public function htmlToDomDocument(string $html): DOMDocument
     {
         // Transform multibyte entities which otherwise display incorrectly.
         $html = mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8');
@@ -157,25 +159,23 @@ class TruncateExtension extends Twig_Extension
 
     /**
      * Removes all nodes after the current node.
-     * @param  DOMNode|DOMElement $domNode
-     * @param  DOMNode|DOMElement $topNode
      * @return void
      */
-    private static function removeProceedingNodes($domNode, $topNode)
+    private static function removeProceedingNodes(DOMNode $domNode, ?DOMNode $topNode): void
     {
         $nextNode = $domNode->nextSibling;
 
         if ($nextNode !== null) {
             self::removeProceedingNodes($nextNode, $topNode);
-            $domNode->parentNode->removeChild($nextNode);
+            $domNode->parentNode?->removeChild($nextNode);
         } else {
             //scan upwards till we find a sibling
             $curNode = $domNode->parentNode;
-            while ($curNode !== $topNode) {
+            while ($curNode !== $topNode && $topNode !== null) {
                 if ($curNode->nextSibling !== null) {
                     $curNode = $curNode->nextSibling;
                     self::removeProceedingNodes($curNode, $topNode);
-                    $curNode->parentNode->removeChild($curNode);
+                    $curNode?->parentNode->removeChild($curNode);
                     break;
                 }
                 $curNode = $curNode->parentNode;
@@ -185,15 +185,15 @@ class TruncateExtension extends Twig_Extension
 
     /**
      * Inserts an ellipsis
-     * @param  DOMNode|DOMElement $domNode  Element to insert after.
-     * @param  string             $ellipsis Text used to suffix our document.
+     * @param DOMNode $domNode  Element to insert after.
+     * @param string $ellipsis Text used to suffix our document.
      * @return void
      */
-    private static function insertEllipsis($domNode, $ellipsis)
+    private static function insertEllipsis(DOMNode $domNode, string $ellipsis): void
     {
-        $avoid = array('a', 'strong', 'em', 'h1', 'h2', 'h3', 'h4', 'h5'); //html tags to avoid appending the ellipsis to
+        $avoid = ['a', 'strong', 'em', 'h1', 'h2', 'h3', 'h4', 'h5']; //html tags to avoid appending the ellipsis to
 
-        if (in_array($domNode->parentNode->nodeName, $avoid) && $domNode->parentNode->parentNode !== null) {
+        if ($domNode->parentNode->parentNode !== null && in_array($domNode->parentNode->nodeName, $avoid)) {
             // Append as text node to parent instead
             $textNode = new DOMText($ellipsis);
 
@@ -205,7 +205,7 @@ class TruncateExtension extends Twig_Extension
 
         } else {
             // Append to current node
-            $domNode->nodeValue = rtrim($domNode->nodeValue) . $ellipsis;
+            $domNode->nodeValue = rtrim($domNode->nodeValue ?? '') . $ellipsis;
         }
     }
 
@@ -213,7 +213,7 @@ class TruncateExtension extends Twig_Extension
      * Returns the name of this extension.
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return 'truncate_extension';
     }
